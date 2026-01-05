@@ -1,4 +1,4 @@
-name: Docker npm build
+name: Docker build
 
 inputs:
   working_directory:

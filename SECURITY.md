@@ -15,7 +15,7 @@ The directories:
 
 contain docker code that:
 
-* violate will fail on running tests
+* will not build
 
 These files are required to:
 

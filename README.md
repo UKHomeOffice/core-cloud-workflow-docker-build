@@ -1,6 +1,6 @@
-# core-cloud-workflow-node-yarn-test
+# core-cloud-workflow-docker-build
 
-A GitHub Actions workflow for building docker images test on projects.
+A GitHub Actions workflow for building docker images on projects.
 
 ## Overview
 
