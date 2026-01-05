@@ -25,7 +25,7 @@ inputs:
     default: latest
 
   tag_latest:
-    description: "Should it also use the tag latest"
+    description: "Should it also use the tag latest (default: true)"
     required: false
     type: boolean
     default: true
