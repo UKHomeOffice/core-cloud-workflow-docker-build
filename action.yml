@@ -31,9 +31,9 @@ inputs:
     default: true
 
 outputs:
-  npm_build_exit_code:
+  docker_build_exit_code:
     description: "The exit code from the docker build command"
-    value: ${{ steps.npm_build.outputs.exit_code }}
+    value: ${{ steps.docker_build_exit_code.outputs.exit_code }}
 
 runs:
   using: "composite"
@@ -50,18 +50,25 @@ runs:
 
     - name: Calculate metadata
       id: docker_meta
-      uses: docker/metadata-action@v4
+      uses: docker/metadata-action@v5
       with:
         images: ${{ inputs.image_tag }}
         tags: |
           type=raw,value=${{ inputs.tag }}
           type=raw,value=latest,enable=${{ inputs.tag_latest }}
 
-    - name: Push container
+    - name: Build image
       id: docker_build
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v6
       with:
         context: .
         file: ${{ inputs.working_directory }}/${{ inputs.dockerfile }}
         push: false
         tags: ${{ steps.docker_meta.outputs.tags }}
+    
+    - name: Set docker build exit code
+      id: docker_build_exit_code
+      shell: bash
+      run: |
+        EXIT_CODE=$?
+        echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
