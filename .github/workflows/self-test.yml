@@ -1,0 +1,47 @@
+name: Self Test - docker build action
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test-valid:
+    name: Test - Valid Node docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run docker build (valid config)
+        uses: ./
+        with:
+          working_directory: "tests/test-build-valid"
+          image_name: "hello-world"
+          image_tag: "valid"
+
+  test-invalid:
+    name: Test - Invalid Node docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run docker build (invalid config)
+        id: build
+        uses: ./
+        continue-on-error: true
+        with:
+          working_directory: "tests/test-build-invalid"
+          image_name: "hello-world"
+          image_tag: "valid"
+
+      - name: Assert failure
+        run: |
+          if [ "${{ steps.build.outputs.docker_build_exit_code }}" -eq 0 ]; then
+            echo "Expected docker build to fail but it succeeded."
+            exit 1
+          fi
