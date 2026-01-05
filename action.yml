@@ -1,0 +1,67 @@
+name: Docker npm build
+
+inputs:
+  working_directory:
+    description: "Directory to run docker build in (default: repository root)"
+    required: false
+    type: string
+    default: "."
+  
+  dockerfile:
+    description: "Directory/Name of the Dockerfile (default: Dockerfile)"
+    required: false
+    type: string
+    default: "Dockerfile"
+
+  image_name:
+    description: "Name of the image"
+    required: true
+    type: string
+
+  image_tag:
+    description: "The tag for the image (default: latest)"
+    required: false
+    type: string
+    default: latest
+
+  tag_latest:
+    description: "Should it also use the tag latest"
+    required: false
+    type: boolean
+    default: true
+
+outputs:
+  npm_build_exit_code:
+    description: "The exit code from the docker build command"
+    value: ${{ steps.npm_build.outputs.exit_code }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v6
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Calculate metadata
+      id: docker_meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ inputs.image_tag }}
+        tags: |
+          type=raw,value=${{ inputs.tag }}
+          type=raw,value=latest,enable=${{ inputs.tag_latest }}
+
+    - name: Push container
+      id: docker_build
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ${{ inputs.working_directory }}/${{ inputs.dockerfile }}
+        push: false
+        tags: ${{ steps.docker_meta.outputs.tags }}
